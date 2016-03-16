@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/DisconnectedIslands" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
