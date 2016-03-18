@@ -35,7 +35,7 @@ from qgis.core import * #QgsMapLayerRegistry, QgsVectorDataProvider, QgsField
 from qgis.gui import QgsMessageBar
 from PyQt4.QtGui import QProgressBar, QColor
 from PyQt4 import QtGui
-import csv
+#import csv
 from random import randint
 
 
@@ -207,6 +207,7 @@ class DisconnectedIslands:
                 return -2
         return attrIdx
 
+        
     def run(self):
         """Run method that performs all the real work"""
         
@@ -218,7 +219,7 @@ class DisconnectedIslands:
         self.dlg.layerComboBox.addItems(layer_list)
         # TODO: Make the active layer the selected item in combo box  aLayer = qgis.utils.iface.activeLayer()
         
-        
+       
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
@@ -272,7 +273,7 @@ class DisconnectedIslands:
 
             aLayer.endEditCommand()
             
-            self.iface.messageBar().pushMessage("Finding connected subgraphs...",  level=QgsMessageBar.INFO)
+            self.iface.messageBar().pushMessage("Finding connected subgraphs, please wait...",  level=QgsMessageBar.WARNING)     # WARNING - to highlight the next stage, where we cannot show progress
             QtGui.qApp.processEvents()
             connected_components = list(nx.connected_component_subgraphs(G))    # this takes a long time.  TODO: how to show progress?
             self.iface.messageBar().pushMessage("Updating group attribute...",  level=QgsMessageBar.INFO)
@@ -296,9 +297,9 @@ class DisconnectedIslands:
                 done = aLayer.changeAttributeValue(fid, attrIdx, group)
             aLayer.endEditCommand()
             
+            groups = list(set(fid_comp.values()))            
             if self.dlg.stylingCheckBox.isChecked():
                 aLayer.beginEditCommand("Update layer styling")
-                groups = list(set(fid_comp.values()))
                 categories = []
                 firstCat = True
                 for cat in groups:
@@ -323,6 +324,7 @@ class DisconnectedIslands:
                 aLayer.endEditCommand()            
                
             self.iface.messageBar().clearWidgets()   
+            self.iface.messageBar().pushMessage("Found %d disconnected islands in layer %s" % (len(groups)-1, aLayer.name()),  level=QgsMessageBar.SUCCESS)
 
             aLayer.commitChanges()
 #            if not previousEditingMode:    
