@@ -34,8 +34,8 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>221</width>
-     <height>26</height>
+     <width>229</width>
+     <height>34</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -163,7 +163,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;by Peter Smythe / &lt;a href=&quot;https://www.afrigis.co.za&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;AfriGIS&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;by Peter Smythe @ &lt;a href=&quot;https://www.afrigis.co.za&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;AfriGIS&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="openExternalLinks">
     <bool>true</bool>

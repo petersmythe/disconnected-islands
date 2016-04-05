@@ -11,7 +11,7 @@ name=Disconnected Islands
 qgisMinimumVersion=2.0
 description=Finds disconnected "islands" in a road network layer, so that a routing tool will work between all nodes. A tolerance field allows for imperfect topology.
 version=1.0
-author=Peter Smythe / AfriGIS
+author=Peter Smythe @ AfriGIS
 email=peters@afrigis.co.za
 
 about=This plugin runs on a polyline layer, building up a road (or rail, etc.) network graph of connected links. It then analyses connected subgraphs, ones that are connected to each other, but not connected to isolated or floating links. It creates an additional attribute containing the group ID of the subgraph. This can then be used to style the layer with Categorised styles, or Zoom to selection. The disconnected links can then be fixed. <br/>
