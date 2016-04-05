@@ -163,7 +163,7 @@ class DisconnectedIslands:
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
+            self.iface.addPluginToVectorMenu(
                 self.menu,
                 action)
 
@@ -195,6 +195,7 @@ class DisconnectedIslands:
     def getAttributeIndex(self, aLayer):
         """Find the attribute index, adding a new Int column, if necessary"""
         attrName = self.dlg.attributeNameEditBox.text()
+        # TODO: If attrName is longer than 10, something fails later.
         attrIdx = aLayer.dataProvider().fieldNameIndex(attrName)
         if attrIdx == -1: # attribute doesn't exist, so create it
             caps = aLayer.dataProvider().capabilities()
@@ -223,7 +224,10 @@ class DisconnectedIslands:
         self.dlg.layerComboBox.addItems(layer_list)
         # TODO: Make the active layer the selected item in combo box  aLayer = qgis.utils.iface.activeLayer()
         
-       
+        # TODO: Add signal to update toleranceSpinBox.suffix (Degrees) from layerComboBox.crs.mapUnits when layer is selected:
+        #my_UnitType = { 0: 'Meters', 1: 'Feet', 2: 'Degrees', 7: 'NauticalMiles', 8: 'Kilometers', 9: 'Yards', 10: 'Miles', 3: 'UnknownUnit'}
+        #suffix = my_UnitType[aLayer.crs().mapUnits()]
+               
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop

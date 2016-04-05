@@ -10,7 +10,7 @@
 name=Disconnected Islands
 qgisMinimumVersion=2.0
 description=Finds disconnected "islands" in a road network layer, so that a routing tool will work between all nodes. A tolerance field allows for imperfect topology.
-version=0.1
+version=1.0
 author=Peter Smythe / AfriGIS
 email=peters@afrigis.co.za
 
