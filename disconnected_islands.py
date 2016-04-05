@@ -39,6 +39,10 @@ from PyQt4 import QtGui
 from random import randint
 
 
+#import sys
+#sys.path.append('/path/to/dir')
+
+
 class DisconnectedIslands:
     """QGIS Plugin Implementation."""
 
@@ -324,7 +328,7 @@ class DisconnectedIslands:
                 aLayer.endEditCommand()            
                
             self.iface.messageBar().clearWidgets()   
-            self.iface.messageBar().pushMessage("Found %d disconnected islands in layer %s" % (len(groups)-1, aLayer.name()),  level=QgsMessageBar.SUCCESS)
+            self.iface.messageBar().pushMessage("Found main network and %d disconnected islands in layer %s" % (len(groups)-1, aLayer.name()),  level=QgsMessageBar.SUCCESS)
 
             aLayer.commitChanges()
 #            if not previousEditingMode:    

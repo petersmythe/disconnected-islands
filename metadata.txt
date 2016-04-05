@@ -15,12 +15,11 @@ author=Peter Smythe / AfriGIS
 email=peters@afrigis.co.za
 
 about=This plugin runs on a polyline layer, building up a road (or rail, etc.) network graph of connected links. It then analyses connected subgraphs, ones that are connected to each other, but not connected to isolated or floating links. It creates an additional attribute containing the group ID of the subgraph. This can then be used to style the layer with Categorised styles, or Zoom to selection. The disconnected links can then be fixed. <br/>
-    Based on Detlev's answer to my question: http://gis.stackexchange.com/questions/184319/how-to-find-disconnected-islands-in-a-road-network-layer-using-qgis 
-    Thank you Detlev!<br/>
+    Based on Detlev's answer to my question: http://gis.stackexchange.com/questions/184319/how-to-find-disconnected-islands-in-a-road-network-layer-using-qgis <br/>
     Sample data to test this plugin can be found in your plugins directory: ~/.qgis2/python/plugins/disconnected-islands/sample data/islands.shp
 
 tracker=http://hub.qgis.org/projects/disconnected-islands
-repository=https://github.com/petersmythe/disconnected-islands.git
+repository=https://github.com/AfriGIS-South-Africa/disconnected-islands.git
 # End of mandatory metadata
 
 # Recommended items:
@@ -31,7 +30,7 @@ repository=https://github.com/petersmythe/disconnected-islands.git
 # Tags are comma separated with spaces allowed
 tags=analysis, network analysis, network, polyline, processing, routing, topography
 
-homepage=http://hub.qgis.org/projects/disconnected-islands
+homepage=https://www.afrigis.co.za/?disconnected-islands
 category=Vector
 icon=icon.png
 # experimental flag
