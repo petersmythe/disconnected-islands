@@ -185,7 +185,7 @@ class DisconnectedIslands:
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginMenu(
+            self.iface.removePluginVectorMenu(
                 self.tr(u'&Disconnected Islands'),
                 action)
             self.iface.removeToolBarIcon(action)
@@ -324,10 +324,10 @@ class DisconnectedIslands:
                 renderer = QgsCategorizedSymbolRendererV2(field, categories)
                 aLayer.setRendererV2(renderer)
 
-                if self.iface.mapCanvas().isCachingEnabled():
-                    aLayer.setCacheImage(None)
-                else:
-                    self.iface.mapCanvas().refresh()
+#                if self.iface.mapCanvas().isCachingEnabled():
+#                    aLayer.setCacheImage(None)
+#                else:
+#                    self.iface.mapCanvas().refresh()
                 aLayer.triggerRepaint()
                 aLayer.endEditCommand()            
                
