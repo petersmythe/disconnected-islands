@@ -29,7 +29,7 @@ from disconnected_islands_dialog import DisconnectedIslandsDialog
 import os.path
 
 
-import networkx as nx
+#import networkx as nx
 from PyQt4.QtCore import *
 from qgis.core import * #QgsMapLayerRegistry, QgsVectorDataProvider, QgsField
 from qgis.gui import QgsMessageBar
@@ -81,6 +81,8 @@ class DisconnectedIslands:
         # TODO: We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.addToolBar(u'DisconnectedIslands')
         self.toolbar.setObjectName(u'DisconnectedIslands')
+        
+        self.checkNetworkXModule()
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -212,6 +214,17 @@ class DisconnectedIslands:
                 return -2
         return attrIdx
 
+    def checkNetworkXModule(self):
+        """check for NetworkX module (especially for Mac) and prompt for install if missing."""
+
+        try:
+            import networkx
+#            self.iface.messageBar().pushMessage("Info", "NetworkX module is present.", level=QgsMessageBar.INFO)
+        except ImportError:
+            self.iface.messageBar().pushMessage("Error in plugin disconnected-islands", "NetworkX module is required and missing. Please install it manually by executing, in a Terminal: sudo easy_install networkx.  Then restart QGIS.", level=QgsMessageBar.CRITICAL)
+            return -1
+        return 0
+
         
     def run(self):
         """Run method that performs all the real work"""
@@ -227,24 +240,28 @@ class DisconnectedIslands:
         # TODO: Add signal to update toleranceSpinBox.suffix (Degrees) from layerComboBox.crs.mapUnits when layer is selected:
         #my_UnitType = { 0: 'Meters', 1: 'Feet', 2: 'Degrees', 7: 'NauticalMiles', 8: 'Kilometers', 9: 'Yards', 10: 'Miles', 3: 'UnknownUnit'}
         #suffix = my_UnitType[aLayer.crs().mapUnits()]
-               
+        
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
+            if self.checkNetworkXModule() < 0:
+                return -4
+            import networkx as nx
+            
             layerName = self.dlg.layerComboBox.currentText()
-            aLayer = QgsMapLayerRegistry.instance().mapLayersByName(layerName)[0]
-        
-            if not aLayer:
+            try:
+                aLayer = QgsMapLayerRegistry.instance().mapLayersByName(layerName)[0]
+            except:
                 self.iface.messageBar().pushMessage("Error", "Failed to load layer!", level=QgsMessageBar.CRITICAL)
                 return -1
 
             previousEditingMode = True
             if not aLayer.isEditable():
                 aLayer.startEditing()
-                self.iface.messageBar().pushMessage("Info", "Layer " + aLayer.name() + " needs to be in edit mode", level=QgsMessageBar.INFO)
+                #self.iface.messageBar().pushMessage("Info", "Layer " + aLayer.name() + " needs to be in edit mode", level=QgsMessageBar.INFO)
                 #self.iface.messageBar().pushMessage("Error", "Layer " + aLayer.name() + " needs to be in edit mode", level=QgsMessageBar.CRITICAL)
                 #return -2
                 previousEditingMode = False
