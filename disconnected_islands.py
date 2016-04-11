@@ -197,7 +197,10 @@ class DisconnectedIslands:
     def getAttributeIndex(self, aLayer):
         """Find the attribute index, adding a new Int column, if necessary"""
         attrName = self.dlg.attributeNameEditBox.text()
-        # TODO: If attrName is longer than 10, something fails later.
+        # TODO: If attrName is longer than 10, something fails later.  Move validation to a signal that checks storageType in the UI.
+        if len(attrName) > 10 and aLayer.storageType() == 'ESRI Shapefile':
+            self.iface.messageBar().pushMessage("Error", "For ESRI Shapefiles, the maximum length of any attribute name is 10. Please choose a shorter attribute name.", level=QgsMessageBar.CRITICAL)
+            return -3
         attrIdx = aLayer.dataProvider().fieldNameIndex(attrName)
         if attrIdx == -1: # attribute doesn't exist, so create it
             caps = aLayer.dataProvider().capabilities()
@@ -205,6 +208,9 @@ class DisconnectedIslands:
                 res = aLayer.dataProvider().addAttributes([QgsField(attrName, QVariant.Int)])
                 attrIdx = aLayer.dataProvider().fieldNameIndex(attrName)
                 aLayer.updateFields()
+                if attrIdx == -1:
+                    self.iface.messageBar().pushMessage("Error", "Failed to create attribute!", level=QgsMessageBar.CRITICAL)
+                    return -1
             else:
                 self.iface.messageBar().pushMessage("Error", "Failed to add attribute!", level=QgsMessageBar.CRITICAL)
                 return -1
@@ -258,99 +264,104 @@ class DisconnectedIslands:
                 self.iface.messageBar().pushMessage("Error", "Failed to load layer!", level=QgsMessageBar.CRITICAL)
                 return -1
 
-            previousEditingMode = True
-            if not aLayer.isEditable():
-                aLayer.startEditing()
-                #self.iface.messageBar().pushMessage("Info", "Layer " + aLayer.name() + " needs to be in edit mode", level=QgsMessageBar.INFO)
-                #self.iface.messageBar().pushMessage("Error", "Layer " + aLayer.name() + " needs to be in edit mode", level=QgsMessageBar.CRITICAL)
-                #return -2
-                previousEditingMode = False
-                 
-            attrIdx = self.getAttributeIndex(aLayer)
-            if attrIdx < 0:
-                return -3  
+            try:
 
-            progressMessageBar = self.iface.messageBar().createMessage("Creating network graph...")
-            progress = QProgressBar()
-            progress.setMaximum(aLayer.featureCount())
-            progress.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
-            progressMessageBar.layout().addWidget(progress)
-            self.iface.messageBar().pushWidget(progressMessageBar, self.iface.messageBar().INFO)          
-            
-            G = nx.Graph()
+                previousEditingMode = True
+                if not aLayer.isEditable():
+                    aLayer.startEditing()
+                    #self.iface.messageBar().pushMessage("Info", "Layer " + aLayer.name() + " needs to be in edit mode", level=QgsMessageBar.INFO)
+                    #self.iface.messageBar().pushMessage("Error", "Layer " + aLayer.name() + " needs to be in edit mode", level=QgsMessageBar.CRITICAL)
+                    #return -2
+                    previousEditingMode = False
+                     
+                attrIdx = self.getAttributeIndex(aLayer)
+                if attrIdx < 0:
+                    return -3  
 
-            aLayer.beginEditCommand("Clear group attribute, create graph")
-            # construct undirected graph
-            tolerance = self.dlg.toleranceSpinBox.value()
-            if tolerance == 0:
-                tolerance = 0.000001
-            count = 0
-            for feat in aLayer.getFeatures():
-                count += 1
-                progress.setValue(count)
-                done = aLayer.changeAttributeValue(feat.id(), attrIdx, -1)
-                line = feat.geometry().asPolyline()
-                for i in range(len(line)-1):
-                    G.add_edges_from([((int(line[i][0]/tolerance), int(line[i][1]/tolerance)), (int(line[i+1][0]/tolerance), int(line[i+1][1]/tolerance)), 
-                                      {'fid': feat.id()})])     # first scale by tolerance, then convert to int.  Before doing this, there were problems with floats not equating, thus creating disconnects that weren't there.
-                if count % 100 == 0:
-                    QtGui.qApp.processEvents()      # keep the UI responsive, every 100 features
+                progressMessageBar = self.iface.messageBar().createMessage("Creating network graph...")
+                progress = QProgressBar()
+                progress.setMaximum(aLayer.featureCount())
+                progress.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
+                progressMessageBar.layout().addWidget(progress)
+                self.iface.messageBar().pushWidget(progressMessageBar, self.iface.messageBar().INFO)          
+                
+                G = nx.Graph()
 
-            aLayer.endEditCommand()
-            
-            self.iface.messageBar().pushMessage("Finding connected subgraphs, please wait...",  level=QgsMessageBar.WARNING)     # WARNING - to highlight the next stage, where we cannot show progress
-            QtGui.qApp.processEvents()
-            connected_components = list(nx.connected_component_subgraphs(G))    # this takes a long time.  TODO: how to show progress?
-            self.iface.messageBar().pushMessage("Updating group attribute...",  level=QgsMessageBar.INFO)
-            QtGui.qApp.processEvents()
-            
-            # gather edges and components to which they belong
-            fid_comp = {}
-            for i, graph in enumerate(connected_components):
-               for edge in graph.edges_iter(data=True):
-                   fid_comp[edge[2].get('fid', None)] = i
+                aLayer.beginEditCommand("Clear group attribute, create graph")
+                # construct undirected graph
+                tolerance = self.dlg.toleranceSpinBox.value()
+                if tolerance == 0:
+                    tolerance = 0.000001
+                count = 0
+                for feat in aLayer.getFeatures():
+                    count += 1
+                    progress.setValue(count)
+                    done = aLayer.changeAttributeValue(feat.id(), attrIdx, -1)
+                    line = feat.geometry().asPolyline()
+                    for i in range(len(line)-1):
+                        G.add_edges_from([((int(line[i][0]/tolerance), int(line[i][1]/tolerance)), (int(line[i+1][0]/tolerance), int(line[i+1][1]/tolerance)), 
+                                          {'fid': feat.id()})])     # first scale by tolerance, then convert to int.  Before doing this, there were problems with floats not equating, thus creating disconnects that weren't there.
+                    if count % 100 == 0:
+                        QtGui.qApp.processEvents()      # keep the UI responsive, every 100 features
 
-            # write output to csv file
-            #with open('C:/Tmp/Components.csv', 'wb') as f:
-            #    w = csv.DictWriter(f, fieldnames=['fid', 'group'])
-            #    w.writeheader()
-            #    for (fid, group) in fid_comp.items():
-            #        w.writerow({'fid': fid, 'group': group})
+                aLayer.endEditCommand()
+                
+                self.iface.messageBar().pushMessage("Finding connected subgraphs, please wait...",  level=QgsMessageBar.WARNING)     # WARNING - to highlight the next stage, where we cannot show progress
+                QtGui.qApp.processEvents()
+                connected_components = list(nx.connected_component_subgraphs(G))    # this takes a long time.  TODO: how to show progress?
+                self.iface.messageBar().pushMessage("Updating group attribute...",  level=QgsMessageBar.INFO)
+                QtGui.qApp.processEvents()
+                
+                # gather edges and components to which they belong
+                fid_comp = {}
+                for i, graph in enumerate(connected_components):
+                   for edge in graph.edges_iter(data=True):
+                       fid_comp[edge[2].get('fid', None)] = i
 
-            aLayer.beginEditCommand("Update group attribute")
-            for (fid, group) in fid_comp.items():
-                done = aLayer.changeAttributeValue(fid, attrIdx, group)
-            aLayer.endEditCommand()
-            
-            groups = list(set(fid_comp.values()))            
-            if self.dlg.stylingCheckBox.isChecked():
-                aLayer.beginEditCommand("Update layer styling")
-                categories = []
-                firstCat = True
-                for cat in groups:
-                    symbol = QgsSymbolV2.defaultSymbol(aLayer.geometryType())
-                    symbol.setColor(QColor(randint(0,255), randint(0,255), randint(0,255)))
-                    if firstCat:
-                        firstCat = False
-                    else:
-                        symbol.setWidth(symbol.width()*5)
-                    category = QgsRendererCategoryV2(cat, symbol, "%d" % cat)
-                    categories.append(category)
+                # write output to csv file
+                #with open('C:/Tmp/Components.csv', 'wb') as f:
+                #    w = csv.DictWriter(f, fieldnames=['fid', 'group'])
+                #    w.writeheader()
+                #    for (fid, group) in fid_comp.items():
+                #        w.writerow({'fid': fid, 'group': group})
 
-                field = self.dlg.attributeNameEditBox.text()
-                renderer = QgsCategorizedSymbolRendererV2(field, categories)
-                aLayer.setRendererV2(renderer)
+                aLayer.beginEditCommand("Update group attribute")
+                for (fid, group) in fid_comp.items():
+                    done = aLayer.changeAttributeValue(fid, attrIdx, group)
+                aLayer.endEditCommand()
+                
+                groups = list(set(fid_comp.values()))            
+                if self.dlg.stylingCheckBox.isChecked():
+                    aLayer.beginEditCommand("Update layer styling")
+                    categories = []
+                    firstCat = True
+                    for cat in groups:
+                        symbol = QgsSymbolV2.defaultSymbol(aLayer.geometryType())
+                        symbol.setColor(QColor(randint(0,255), randint(0,255), randint(0,255)))
+                        if firstCat:
+                            firstCat = False
+                        else:
+                            symbol.setWidth(symbol.width()*5)
+                        category = QgsRendererCategoryV2(cat, symbol, "%d" % cat)
+                        categories.append(category)
 
-#                if self.iface.mapCanvas().isCachingEnabled():
-#                    aLayer.setCacheImage(None)
-#                else:
-#                    self.iface.mapCanvas().refresh()
-                aLayer.triggerRepaint()
-                aLayer.endEditCommand()            
-               
-            self.iface.messageBar().clearWidgets()   
-            self.iface.messageBar().pushMessage("Found main network and %d disconnected islands in layer %s" % (len(groups)-1, aLayer.name()),  level=QgsMessageBar.SUCCESS)
+                    field = self.dlg.attributeNameEditBox.text()
+                    renderer = QgsCategorizedSymbolRendererV2(field, categories)
+                    aLayer.setRendererV2(renderer)
 
-            aLayer.commitChanges()
-#            if not previousEditingMode:    
-           
+#                    if self.iface.mapCanvas().isCachingEnabled():
+#                        aLayer.setCacheImage(None)
+#                    else:
+#                        self.iface.mapCanvas().refresh()
+                    aLayer.triggerRepaint()
+                    aLayer.endEditCommand()            
+                   
+                self.iface.messageBar().clearWidgets()   
+                self.iface.messageBar().pushMessage("Found main network and %d disconnected islands in layer %s" % (len(groups)-1, aLayer.name()),  level=QgsMessageBar.SUCCESS)
+
+                aLayer.commitChanges()
+#                if not previousEditingMode: 
+    
+            except Exception as e:
+                self.iface.messageBar().pushMessage("Error", "Exception caught: %s.  Please report an issue to the author of the plugin." % repr(e), level=QgsMessageBar.CRITICAL)
+                

@@ -34,7 +34,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>301</width>
+     <width>305</width>
      <height>68</height>
     </rect>
    </property>
@@ -128,7 +128,7 @@
     <item row="0" column="1">
      <widget class="QComboBox" name="layerComboBox">
       <property name="toolTip">
-       <string>Select the polyline layer to analyse</string>
+       <string>Select the line layer to analyse</string>
       </property>
      </widget>
     </item>
@@ -197,26 +197,46 @@
     </item>
    </layout>
   </widget>
-  <widget class="QLabel" name="label_6">
+  <widget class="QLabel" name="labelLocalSampleData">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>250</y>
-     <width>171</width>
+     <x>10</x>
+     <y>240</y>
+     <width>201</width>
      <height>20</height>
     </rect>
    </property>
    <property name="toolTip">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Please find sample data in your plugins directory: ~/.qgis2/python/plugins/disconnected-islands/sample data/islands.shp&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>Please find sample data in your plugins directory: ~/.qgis2/python/plugins/disconnected-islands/sample-data/islands.zip (NB: .qgis2 is normally a hidden directory.)</string>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#a3a3a3;&quot;&gt;Hover over for sample data&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#a3a3a3;&quot;&gt;Hover over for local sample data&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelRemoteSampleData">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>255</y>
+     <width>201</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>https://github.com/AfriGIS-South-Africa/disconnected-islands/raw/master/sample-data/islands.zip</string>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#a3a3a3;&quot;&gt;Click for &lt;a href=&quot;https://github.com/AfriGIS-South-Africa/disconnected-islands/raw/master/sample-data/islands.zip&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;sample data on GitHub&lt;/span&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="openExternalLinks">
+    <bool>true</bool>
    </property>
   </widget>
   <zorder>layoutWidget</zorder>
   <zorder>layoutWidget</zorder>
   <zorder>button_box</zorder>
-  <zorder>label_6</zorder>
+  <zorder>labelLocalSampleData</zorder>
+  <zorder>labelRemoteSampleData</zorder>
  </widget>
 
  <connections>

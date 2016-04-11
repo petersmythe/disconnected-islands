@@ -10,15 +10,17 @@
 [general]
 name=Disconnected Islands
 qgisMinimumVersion=2.0
-description=Finds disconnected "islands" in a road network layer, so that a routing tool will work between all nodes. A tolerance field allows for imperfect topology.
-version=1.0.2
+description=Finds disconnected "islands" in a transport network layer, so that a routing tool will work between all nodes. A tolerance field allows for imperfect topology.
+version=1.0.3
 author=Peter Smythe @ AfriGIS
 email=peters@afrigis.co.za
 
 about=This plugin runs on a polyline layer, building up a road (or rail, etc.) network graph of connected links. It then analyses connected subgraphs, ones that are connected to each other, but not connected to isolated or floating links. It creates an additional attribute containing the group ID of the subgraph. This can then be used to style the layer with Categorised styles, or Zoom to selection. The disconnected links can then be fixed. <br/>
     Based on Detlev's answer to my question: http://gis.stackexchange.com/questions/184319/how-to-find-disconnected-islands-in-a-road-network-layer-using-qgis <br/>
-    Sample data to test this plugin can be found in your plugins directory: ~/.qgis2/python/plugins/disconnected-islands/sample data/islands.shp <br/>
-    This plugin depends on the NetworkX module (https://networkx.github.io).  Mac users need to install it manually by executing, in a Terminal: sudo easy_install networkx.  Then restart QGIS.
+    Sample data to test this plugin can be found:
+    - in your plugins directory: ~/.qgis2/python/plugins/disconnected-islands/sample-data/islands.zip (NB: .qgis2 is normally a hidden directory.)
+    - via GitHub: https://github.com/AfriGIS-South-Africa/disconnected-islands/raw/master/sample-data/islands.zip<br/>
+    This plugin depends on the NetworkX module.  Mac OS X users need to install it manually, simply by executing, in a Terminal: sudo easy_install networkx.  Then restart QGIS.
 
 tracker=http://hub.qgis.org/projects/disconnected-islands
 repository=https://github.com/AfriGIS-South-Africa/disconnected-islands.git
@@ -27,13 +29,17 @@ repository=https://github.com/AfriGIS-South-Africa/disconnected-islands.git
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=Version 1.0.1 (2016-04-07)
-    - fixed cut off icon & heading size for Mac
-    - fixed plugin unload (from wrong menu)
-    - removed deprecated setCacheImage <br/>
+changelog=Version 1.0.3 (2016-04-11)
+    - handle error for ESRI Shapefile if attribute name is larger than 10 characters
+    - add general exception handling
+    - compress sample data into a single ZIP file for easy direct download from GitHub<br/>
     Version 1.0.2 (2016-04-08)
-    - implement check for NetworkX module and prompt to install (primarily for Mac)
-    - handle empty layer name (none selected)
+    - implement check for NetworkX module and prompt to install (primarily for Mac OS X)
+    - handle empty layer name (none selected) <br/>
+    Version 1.0.1 (2016-04-07)
+    - fixed cut off icon & heading size for Mac OS X
+    - fixed plugin unload (from wrong menu)
+    - removed deprecated setCacheImage
 
 # Tags are comma separated with spaces allowed
 tags=analysis, network analysis, network, polyline, processing, routing, topography
